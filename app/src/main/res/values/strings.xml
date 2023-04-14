@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">GlartekChallenge</string>
+    <string name="title">%s</string>
+    <string name="imdbId">Imdb Id: %s</string>
+    <string name="year">Year: %s</string>
+    <string name="search">Search by name</string>
+</resources>
