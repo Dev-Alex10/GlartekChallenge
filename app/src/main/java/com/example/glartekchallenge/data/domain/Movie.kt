@@ -8,7 +8,7 @@ data class Movie(
     val id: String,
     val title: String,
     val year: Int,
-    val rating: Float,
+    val rating: String,
     val genre: String,
     val plot: String,
     val director: String,

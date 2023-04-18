@@ -2,26 +2,36 @@ package com.example.glartekchallenge
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.glartekchallenge.data.domain.Movie
+import androidx.navigation.navDeepLink
+import com.example.glartekchallenge.ui.details.DetailsScreen
 import com.example.glartekchallenge.ui.home.HomeScreen
 
 @Composable
 fun MovieNavHost(navController: NavHostController, modifier: Modifier) {
+    val uri = "https://movie.com"
+
     NavHost(navController = navController, startDestination = Home.route, modifier = modifier) {
         composable(route = Home.route) {
             HomeScreen(onInfoClick = { movie ->
-                navController.navigateToMovieDetails(movie = movie)
-            },
-                onFavoriteClick = {})
+                navController.navigateSingleTopTo(route = Details.route(movie.id))
+            })
         }
-        composable(route = Details.routeWithArgs, arguments = listOf(Details.arguments)) {
-//            DetailsScreen(detailsViewModel = hiltViewModel())
+        composable(
+            route = Details.routeWithArgs,
+            arguments = Details.arguments,
+            deepLinks = listOf(
+                navDeepLink { uriPattern = "$uri/" + Details.routeWithArgs }
+            )
+        ) {
+            DetailsScreen(detailsViewModel = hiltViewModel())
         }
     }
+
 }
 
 fun NavHostController.navigateSingleTopTo(route: String) {
@@ -33,8 +43,3 @@ fun NavHostController.navigateSingleTopTo(route: String) {
         restoreState = true
     }
 }
-
-fun NavHostController.navigateToMovieDetails(movie: Movie) {
-    this.navigateSingleTopTo(Details.route(movie))
-}
-

@@ -4,4 +4,7 @@
     <string name="imdbId">Imdb Id: %s</string>
     <string name="year">Year: %s</string>
     <string name="search">Search by name</string>
+    <string name="back_button">Back</string>
+    <string name="home">Home</string>
+    <string name="details">Movie details</string>
 </resources>

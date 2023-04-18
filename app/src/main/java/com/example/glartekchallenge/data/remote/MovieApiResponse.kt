@@ -30,7 +30,7 @@ data class MovieApiSearchByTitleOrIdResponse(
     @SerializedName(value = "Year")
     val year: Int,
     @SerializedName(value = "imdbRating")
-    val rating: Float,
+    val rating: String,
     @SerializedName(value = "Genre")
     val genre: String,
     @SerializedName(value = "Plot")
@@ -62,7 +62,7 @@ fun MovieApiSearchResponse.toDomain(): Movie {
         id = imdbID,
         title = title,
         year = year.toInt(),
-        rating = 5.0F,
+        rating = "5.0",
         genre = "",
         plot = "",
         director = "",

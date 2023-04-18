@@ -2,25 +2,28 @@ package com.example.glartekchallenge
 
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
-import com.example.glartekchallenge.data.domain.Movie
 
 interface MovieDestination {
     val route: String
+    val name: String
 }
 
 object Home : MovieDestination {
     override val route = "home"
+    override val name = "Movie List"
 }
 
 object Details : MovieDestination {
     override val route = "details"
-    private const val movieArg = "movie"
-    val routeWithArgs = "${route}?movieArg={$movieArg}"
-    val arguments = navArgument(movieArg) {//arguments for additional safety
-        type = NavType.StringType
-    }
+    override val name = "Movie Details"
+    private const val movieId = "movieId"
+    val routeWithArgs = "${route}?movieId={$movieId}"
+    val arguments = listOf(
+        navArgument(movieId) {//arguments for additional safety
+            type = NavType.StringType
+        })
 
-    fun route(movie: Movie): String {
-        return "$route?movieArg=${movie.id}"
+    fun route(movieId: String): String {
+        return "$route?movieId=$movieId"
     }
 }

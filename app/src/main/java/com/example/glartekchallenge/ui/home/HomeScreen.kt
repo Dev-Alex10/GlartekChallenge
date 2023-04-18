@@ -1,6 +1,5 @@
 package com.example.glartekchallenge.ui.home
 
-import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -9,29 +8,26 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.example.glartekchallenge.R
 import com.example.glartekchallenge.data.domain.Movie
+import com.example.glartekchallenge.ui.utils.ImageComponent
 
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
-    onInfoClick: (Movie) -> Unit,
-    onFavoriteClick: (Movie) -> Unit
+    onInfoClick: (Movie) -> Unit
 ) {
     val state = viewModel.state.collectAsState().value
     Column(modifier = modifier) {
@@ -47,47 +43,63 @@ fun HomeScreen(
             is HomeViewModel.MoviesLoadingState.Error -> Text(
                 text = state.movieState.t.toString()
             )
-            HomeViewModel.MoviesLoadingState.Loading -> Text(
-                text = "Loading...", modifier = Modifier.padding(10.dp)
-            )
+            HomeViewModel.MoviesLoadingState.Loading -> {
+                Text(text = state.favoriteList.toString())
+                Text(
+                    text = "Loading...", modifier = Modifier.padding(10.dp)
+                )
+            }
             is HomeViewModel.MoviesLoadingState.Success
             -> {
-                MovieList(movies = state.movieState.movieList, modifier = modifier)
+                MovieList(
+                    movies = state.movieState.movieList,
+                    modifier = modifier,
+                    onInfoClick = onInfoClick,
+                    onFavoriteClick = {
+                        viewModel.onFavoriteClick(it.id, true)
+                    },
+                    homeViewModel = viewModel
+                )
             }
         }
     }
 }
 
 @Composable
-fun MovieList(movies: List<Movie>, modifier: Modifier = Modifier) {
+fun MovieList(
+    movies: List<Movie>, modifier: Modifier = Modifier,
+    homeViewModel: HomeViewModel,
+    onInfoClick: (Movie) -> Unit,
+    onFavoriteClick: (Movie) -> Unit
+) {
     LazyColumn(modifier = modifier) {
         items(movies) { movie ->
-            MovieCard(movie = movie, modifier = Modifier.padding(top = 10.dp))
+            MovieCard(
+                movie = movie,
+                modifier = Modifier.padding(top = 10.dp),
+                onInfoClick = onInfoClick,
+                onFavoriteClick = { onFavoriteClick(movie) },
+                homeViewModel = homeViewModel
+            )
         }
     }
 }
 
 @Composable
-fun MovieCard(movie: Movie, modifier: Modifier = Modifier) {
+fun MovieCard(
+    movie: Movie,
+    modifier: Modifier = Modifier,
+    homeViewModel: HomeViewModel,
+    onInfoClick: (Movie) -> Unit,
+    onFavoriteClick: (Movie) -> Unit
+) {
     val imageModifier = Modifier
         .height(180.dp)
         .padding(start = 10.dp, end = 10.dp)
-    val context = LocalContext.current
     Row(
         modifier = modifier, verticalAlignment = Alignment.CenterVertically
     ) {
-        AsyncImage(
-            model = ImageRequest.Builder(context).data(movie.image).crossfade(true).build(),
-            contentDescription = "Movie image",
-            modifier = imageModifier.weight(2f),
-            onError = {
-                Toast.makeText(
-                    context, it.toString(), Toast.LENGTH_LONG
-                ).show()
-            },
-            contentScale = ContentScale.Fit,
-//            error = painterResource(id = Color.Black.hashCode())
-        )
+        ImageComponent(modifier = imageModifier.weight(2f), movie = movie)
         Spacer(modifier = Modifier.width(10.dp))
         Column(
             modifier = modifier
@@ -119,14 +131,25 @@ fun MovieCard(movie: Movie, modifier: Modifier = Modifier) {
                 imageVector = Icons.Default.Info,
                 contentDescription = "Movie details",
                 modifier = Modifier.clickable {
-
-                })
-            Icon(
-                imageVector = Icons.Default.Favorite,
-                contentDescription = "Favorite movie",
-                modifier = Modifier.clickable {
-
-                })
+                    onInfoClick(movie)
+                }
+            )
+            //IconTogleButton
+            if (!homeViewModel.isFavorite(movie.id)) {
+                Icon(
+                    imageVector = Icons.Default.Favorite,
+                    contentDescription = "Favorite movie",
+                    modifier = Modifier.clickable {
+                        onFavoriteClick(movie)
+                    })
+            } else {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Unfavorite movie",
+                    modifier = Modifier.clickable {
+                        onFavoriteClick(movie)
+                    })
+            }
         }
     }
 }
