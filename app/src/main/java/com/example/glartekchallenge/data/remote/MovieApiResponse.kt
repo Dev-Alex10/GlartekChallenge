@@ -1,12 +1,16 @@
 package com.example.glartekchallenge.data.remote
 
 import com.example.glartekchallenge.data.domain.Movie
+import com.example.glartekchallenge.data.domain.MovieResults
 import com.google.gson.annotations.SerializedName
-import retrofit2.http.Url
 
 data class MovieApiRes(
     @SerializedName(value = "Search")
-    val movieList: List<MovieApiSearchResponse>
+    val movieList: List<MovieApiSearchResponse>,
+    @SerializedName(value = "totalResults")
+    val totalResults: String?,
+    @SerializedName(value = "Error")
+    val error : String?
 )
 
 data class MovieApiSearchResponse(
@@ -67,6 +71,13 @@ fun MovieApiSearchResponse.toDomain(): Movie {
         plot = "",
         director = "",
         actors = "",
-        image = poster.toString()
+        image = poster
+    )
+}
+
+fun MovieApiRes.toDomain(): MovieResults {
+    return MovieResults(
+        totalResults = totalResults?.toInt(),
+        error = error
     )
 }

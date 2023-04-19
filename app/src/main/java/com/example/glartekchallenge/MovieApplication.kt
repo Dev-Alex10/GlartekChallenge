@@ -11,6 +11,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.glartekchallenge.nav.destinations.Details
+import com.example.glartekchallenge.nav.destinations.Favorite
+import com.example.glartekchallenge.nav.destinations.Home
+import com.example.glartekchallenge.nav.graphs.BottomBarNavHost
+import com.example.glartekchallenge.nav.graphs.MovieNavHost
 import com.example.glartekchallenge.ui.theme.GlartekChallengeTheme
 import com.example.glartekchallenge.ui.utils.MovieAppBar
 import dagger.hilt.android.HiltAndroidApp
@@ -28,6 +33,7 @@ fun MovieApp(
     val currentScreenTitle = when (currentDestination?.route) {
         Home.route -> Home.name
         Details.routeWithArgs -> Details.name
+        Favorite.route -> Favorite.name
         else -> {
             ""
         }
@@ -49,7 +55,9 @@ fun MovieApp(
                     )
                 },
             )
-        }) {
+        },
+            bottomBar = { BottomBarNavHost(navController = navController) }
+        ) {
             MovieNavHost(navController, Modifier.padding(it))
         }
     }

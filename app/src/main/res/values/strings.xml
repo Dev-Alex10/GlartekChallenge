@@ -2,9 +2,31 @@
     <string name="app_name">GlartekChallenge</string>
     <string name="title">%s</string>
     <string name="imdbId">Imdb Id: %s</string>
-    <string name="year">Year: %s</string>
-    <string name="search">Search by name</string>
+    <string name="searchByName">Search by name</string>
     <string name="back_button">Back</string>
     <string name="home">Home</string>
-    <string name="details">Movie details</string>
+    <string name="details">Movie Details</string>
+    <string name="favorite_movie">Favorite movie</string>
+    <string name="unfavorite_movie">Unfavorite movie</string>
+
+    <string name="loading">Loading…</string>
+    <string name="search">Search</string>
+    <string name="paginator">Page %s of %s</string>
+    <string name="previous">Previous</string>
+    <string name="next">Next</string>
+
+    <string name="genre">Genre: %s</string>
+    <string name="rating">Rating: %s</string>
+    <string name="year">Year: %s</string>
+    <string name="plot">Plot: %s</string>
+    <string name="director">Director: %s</string>
+    <string name="actors">Actors: %s</string>
+
+    <string name="movie_image">Movie image</string>
+
+    <string name="share_deep_link">Share deep link</string>
+
+    <string name="appwidget_text">Favorites</string>
+    <string name="add_widget">Add widget</string>
+    <string name="app_widget_description">Favorite Movie List Widget</string>
 </resources>

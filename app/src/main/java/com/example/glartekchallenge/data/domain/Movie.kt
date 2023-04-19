@@ -15,3 +15,7 @@ data class Movie(
     val actors: String,
     val image: String
 ) : Parcelable
+data class MovieResults(
+    val totalResults: Int?,
+    val error: String?
+)

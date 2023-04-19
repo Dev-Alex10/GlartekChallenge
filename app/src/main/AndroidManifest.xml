@@ -4,16 +4,26 @@
     package="com.example.glartekchallenge">
 
     <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name=".MovieApplication"
         android:allowBackup="true"
-        android:dataExtractionRules="@xml/data_extraction_rules"
-        android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.GlartekChallenge"
-        tools:targetApi="31">
+        android:theme="@style/Theme.GlartekChallenge">
+        <receiver
+            android:name=".widget.FavoriteWidgetReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/favorite_movies_info" />
+        </receiver>
+
         <activity
             android:name=".ui.MainActivity"
             android:exported="true"
@@ -25,8 +35,10 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data
                     android:host="movie.com"
                     android:scheme="https" />

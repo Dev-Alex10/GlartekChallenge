@@ -34,9 +34,12 @@ fun MovieAppBar(
             }
         },
         actions = {
-            if (currentScreenTitle == "Movie Details")
+            if (currentScreenTitle == stringResource(id = R.string.details))
                 IconButton(onClick = shareOnClick) {
-                    Icon(imageVector = Icons.Default.Share, contentDescription = "Share deep link")
+                    Icon(
+                        imageVector = Icons.Default.Share,
+                        contentDescription = stringResource(id = R.string.share_deep_link)
+                    )
                 }
         }
     )

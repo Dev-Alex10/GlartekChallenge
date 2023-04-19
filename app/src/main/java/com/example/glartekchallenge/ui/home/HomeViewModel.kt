@@ -1,6 +1,5 @@
 package com.example.glartekchallenge.ui.home
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.glartekchallenge.data.domain.DefaultMovieRepository
@@ -20,26 +19,17 @@ private const val TAG = "HomeViewModel"
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val repository: DefaultMovieRepository,
+    private val movieRepository: DefaultMovieRepository,
     private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
     private val _state = MutableStateFlow(HomeViewState())
     val state: StateFlow<HomeViewState> get() = _state //exposing state flow not mutable
     private var movieJob: Job? = null
-    private var response: List<Movie> = emptyList()
-
-    init {
-        viewModelScope.launch {
-            _state.update {
-                it.copy(favoriteList = userPreferencesRepository.userPreferencesFlow.first().favoriteMovies)
-            }
-        }
-    }
 
     sealed interface MoviesLoadingState {
         //dataclass auto generates equals,hashcode & copy
         data class Success(val movieList: List<Movie>) : MoviesLoadingState
-        data class Error(val t: Throwable) : MoviesLoadingState
+        data class Error(val error: String = "") : MoviesLoadingState
         object Loading : MoviesLoadingState
     }
 
@@ -47,15 +37,16 @@ class HomeViewModel @Inject constructor(
         val text: String = "",
         val movieState: MoviesLoadingState = MoviesLoadingState.Loading,
         val favoriteList: Set<String> = emptySet(),
+        val totalPages: Int = 1,
+        val currentPage: Int = 1
     )
 
     fun onTextChanged(text: String) {
         _state.update { it.copy(text = text) }
-        response = emptyList()
         getMovieList(text)
     }
 
-    private fun getMovieList(searchTerm: String) {
+    fun getMovieList(searchTerm: String, page: Int = 1) {
         movieJob?.cancel()
 
         _state.update { it.copy(movieState = MoviesLoadingState.Loading) }
@@ -63,10 +54,30 @@ class HomeViewModel @Inject constructor(
         movieJob = viewModelScope.launch {
             delay(500)
             try {
-                response = repository.getMovies(searchTerm)
-                _state.update { it.copy(movieState = MoviesLoadingState.Success(response)) }
+                _state.update {
+                    it.copy(
+                        movieState = MoviesLoadingState.Success(
+                            movieRepository.getMovies(
+                                searchTerm, page
+                            )
+                        ),
+                        currentPage = page,
+                        totalPages = movieRepository.getResults(movieSearchTerm = searchTerm)
+                            .totalResults?.div(10) ?: 1,
+                        favoriteList = _state.value.favoriteList + userPreferencesRepository
+                            .userPreferencesFlow.first().favoriteMovies
+                    )
+                }
             } catch (t: Throwable) {
-                _state.update { it.copy(movieState = MoviesLoadingState.Error(t)) }
+                _state.update {
+                    it.copy(
+                        movieState = MoviesLoadingState.Error(
+                            movieRepository.getResults(
+                                movieSearchTerm = searchTerm
+                            ).error ?: "Error"
+                        )
+                    )
+                }
             }
         }
     }

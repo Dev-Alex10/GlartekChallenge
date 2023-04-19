@@ -4,19 +4,16 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.glartekchallenge.R
@@ -34,23 +31,41 @@ fun HomeScreen(
         TextField(
             value = state.text,
             onValueChange = viewModel::onTextChanged,
-            modifier = Modifier.padding(10.dp),
-            placeholder = {
-                Text(text = stringResource(id = R.string.search))
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp),
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = stringResource(id = R.string.search),
+                    modifier = Modifier.padding(10.dp)
+                )
             },
+            placeholder = {
+                Text(text = stringResource(id = R.string.searchByName))
+            },
+            singleLine = true,
         )
         when (state.movieState) {
             is HomeViewModel.MoviesLoadingState.Error -> Text(
-                text = state.movieState.t.toString()
+                text = state.movieState.error,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colors.error,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
             )
             HomeViewModel.MoviesLoadingState.Loading -> {
-                Text(text = state.favoriteList.toString())
+//                Text(text = state.favoriteList.toString())
                 Text(
-                    text = "Loading...", modifier = Modifier.padding(10.dp)
+                    text = stringResource(id = R.string.loading),
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
             is HomeViewModel.MoviesLoadingState.Success
             -> {
+                Pagination(viewModel)
                 MovieList(
                     movies = state.movieState.movieList,
                     modifier = modifier,
@@ -58,7 +73,7 @@ fun HomeScreen(
                     onFavoriteClick = {
                         viewModel.onFavoriteClick(it.id, true)
                     },
-                    homeViewModel = viewModel
+                    isFavorite = { viewModel.isFavorite(it.id) }
                 )
             }
         }
@@ -66,11 +81,47 @@ fun HomeScreen(
 }
 
 @Composable
+private fun Pagination(
+    viewModel: HomeViewModel
+) {
+    val state = viewModel.state.collectAsState().value
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+        if (state.currentPage > 1) {
+            IconButton(onClick = {
+                viewModel.getMovieList(searchTerm = state.text, page = state.currentPage - 1)
+            }) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = stringResource(id = R.string.previous)
+                )
+            }
+        }
+        Button(onClick = { }) {
+            Text(
+                text = stringResource(
+                    id = R.string.paginator,
+                    state.currentPage,
+                    state.totalPages
+                )
+            )
+        }
+        IconButton(onClick = {
+            viewModel.getMovieList(searchTerm = state.text, page = state.currentPage + 1)
+        }) {
+            Icon(
+                imageVector = Icons.Default.ArrowForward,
+                contentDescription = stringResource(id = R.string.next)
+            )
+        }
+    }
+}
+
+@Composable
 fun MovieList(
     movies: List<Movie>, modifier: Modifier = Modifier,
-    homeViewModel: HomeViewModel,
     onInfoClick: (Movie) -> Unit,
-    onFavoriteClick: (Movie) -> Unit
+    onFavoriteClick: (Movie) -> Unit,
+    isFavorite: (Movie) -> Boolean
 ) {
     LazyColumn(modifier = modifier) {
         items(movies) { movie ->
@@ -79,7 +130,7 @@ fun MovieList(
                 modifier = Modifier.padding(top = 10.dp),
                 onInfoClick = onInfoClick,
                 onFavoriteClick = { onFavoriteClick(movie) },
-                homeViewModel = homeViewModel
+                isFavorite = isFavorite
             )
         }
     }
@@ -89,9 +140,9 @@ fun MovieList(
 fun MovieCard(
     movie: Movie,
     modifier: Modifier = Modifier,
-    homeViewModel: HomeViewModel,
     onInfoClick: (Movie) -> Unit,
-    onFavoriteClick: (Movie) -> Unit
+    onFavoriteClick: (Movie) -> Unit,
+    isFavorite: (Movie) -> Boolean
 ) {
     val imageModifier = Modifier
         .height(180.dp)
@@ -129,23 +180,23 @@ fun MovieCard(
         ) {
             Icon(
                 imageVector = Icons.Default.Info,
-                contentDescription = "Movie details",
+                contentDescription = stringResource(id = R.string.details),
                 modifier = Modifier.clickable {
                     onInfoClick(movie)
                 }
             )
             //IconTogleButton
-            if (!homeViewModel.isFavorite(movie.id)) {
+            if (!isFavorite(movie)) {
                 Icon(
                     imageVector = Icons.Default.Favorite,
-                    contentDescription = "Favorite movie",
+                    contentDescription = stringResource(id = R.string.favorite_movie),
                     modifier = Modifier.clickable {
                         onFavoriteClick(movie)
                     })
             } else {
                 Icon(
                     imageVector = Icons.Default.Delete,
-                    contentDescription = "Unfavorite movie",
+                    contentDescription = stringResource(id = R.string.unfavorite_movie),
                     modifier = Modifier.clickable {
                         onFavoriteClick(movie)
                     })

@@ -1,4 +1,4 @@
-package com.example.glartekchallenge
+package com.example.glartekchallenge.nav.graphs
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -8,7 +8,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
+import com.example.glartekchallenge.nav.destinations.Details
+import com.example.glartekchallenge.nav.destinations.Favorite
+import com.example.glartekchallenge.nav.destinations.Home
 import com.example.glartekchallenge.ui.details.DetailsScreen
+import com.example.glartekchallenge.ui.favorite.FavoriteScreen
 import com.example.glartekchallenge.ui.home.HomeScreen
 
 @Composable
@@ -30,6 +34,12 @@ fun MovieNavHost(navController: NavHostController, modifier: Modifier) {
         ) {
             DetailsScreen(detailsViewModel = hiltViewModel())
         }
+        composable(route = Favorite.route) {
+            FavoriteScreen(onInfoClick = { movie ->
+                navController.navigateSingleTopTo(route = Details.route(movie.id))
+            })
+        }
+
     }
 
 }

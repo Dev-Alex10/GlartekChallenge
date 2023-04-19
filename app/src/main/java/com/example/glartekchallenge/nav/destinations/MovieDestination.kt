@@ -1,4 +1,4 @@
-package com.example.glartekchallenge
+package com.example.glartekchallenge.nav.destinations
 
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
@@ -17,7 +17,7 @@ object Details : MovieDestination {
     override val route = "details"
     override val name = "Movie Details"
     private const val movieId = "movieId"
-    val routeWithArgs = "${route}?movieId={$movieId}"
+    val routeWithArgs = "$route?movieId={$movieId}"
     val arguments = listOf(
         navArgument(movieId) {//arguments for additional safety
             type = NavType.StringType
